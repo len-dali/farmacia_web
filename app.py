@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
-app.secret_key = "cambia-esta-clave-por-una-propia"  # necesaria para los mensajes flash
+app.secret_key = "lendali"  # necesaria para los mensajes flash
 
 NOMBRE_FARMACIA = "Farmacias Similares"
 
