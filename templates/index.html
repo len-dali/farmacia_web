@@ -1,0 +1,243 @@
+<!---LOGO--->
+
+{% macro logo() %}
+<img class="logo-img" src="{{url_for('static', filename= 'css/img/logo.png')}}" alt="Logo">
+{% endmacro %}
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ nombre }} | Medicamentos, vitaminas y cuidado personal</title>
+  <meta name="description" content="Compra medicamentos, vitaminas y productos de cuidado personal. Recoge en tienda o recibe en casa.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/img/style.css') }}">
+</head>
+<body>
+
+  <header class="cabecera">
+    <div class="contenedor cabecera-fila">
+      <a class="marca" href="{{ url_for('inicio') }}" aria-label="{{ nombre }}, inicio">
+        {{ logo() }}
+        <span>{{ nombre }}</span>
+      </a>
+      <nav class="menu" aria-label="Principal">
+        <a href="#productos">Productos</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#horarios">Horarios</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <a class="boton boton-solido boton-chico" href="#contacto">Pedir a domicilio</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="contenedor hero-fila">
+        <div class="hero-texto">
+          <h1>Lo que necesitas para sentirte mejor, hoy mismo.</h1>
+          <p class="hero-sub">
+            Medicamentos, vitaminas y cuidado personal con asesoría de farmacéuticos titulados.
+            Recógelo en tienda o te lo llevamos a casa.
+          </p>
+
+          <form class="buscador" action="{{ url_for('inicio') }}#productos" method="get" role="search">
+            <label class="sr-only" for="q">Buscar un medicamento o producto</label>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input id="q" type="search" name="q" value="{{ q }}" placeholder="Busca un medicamento o producto" autocomplete="off">
+            <button class="boton boton-solido" type="submit">Buscar</button>
+          </form>
+
+          <p class="mas-buscados">
+            Más buscados:
+            <a href="{{ url_for('inicio', q='Paracetamol', _anchor='productos') }}">Paracetamol</a>
+            <a href="{{ url_for('inicio', q='Vitamina C', _anchor='productos') }}">Vitamina C</a>
+            <a href="{{ url_for('inicio', q='Suero', _anchor='productos') }}">Suero oral</a>
+          </p>
+        </div>
+
+        <div class="visual" aria-hidden="true">
+          <span class="capsula c1"></span>
+          <span class="capsula c2"></span>
+          <span class="tableta"></span>
+          <div class="receta">
+            <div class="receta-tapa"><span>Rx</span> {{ nombre }}</div>
+            <p class="receta-linea"><strong>Abierto hoy</strong> de 8:00 a 22:00</p>
+            <p class="receta-linea"><strong>Domicilio</strong> en menos de 45 minutos</p>
+            <p class="receta-nota">Consulta a tu médico o farmacéutico. No te automediques.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categorías -->
+    <section class="seccion" id="categorias">
+      <div class="contenedor">
+        <div class="titulo-seccion">
+          <h2>Todo para tu botiquín</h2>
+          <p>Elige una categoría y mira lo que tenemos disponible.</p>
+        </div>
+
+        <div class="bento">
+          {% for c in categorias %}
+          <a class="tile tile-{{ c.tam }}{% if categoria == c.id %} activo{% endif %}"
+            style="--imagen: url('{{url_for('static', filename= 'css/img/' ~ c.imagen) }}')"
+            href="{{ url_for('inicio', categoria=c.id, _anchor='productos') }}">
+            <span class="tile-conteo">{{ conteo[c.id] }} producto{{'' if conteo [c.id] == 1 else 's'}} </span>
+            <h3>{{ c.nombre }}</h3>
+            <p>{{ c.detalle }}</p>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Productos -->
+    <section class="seccion seccion-hielo" id="productos">
+      <div class="contenedor">
+        <div class="titulo-seccion">
+          <h2>
+            {% if q %}Resultados para «{{ q }}»
+            {% elif categoria %}{{ nombres_categoria[categoria] }}
+            {% else %}Productos disponibles{% endif %}
+          </h2>
+          {% if q or categoria %}
+          <p><a class="enlace" href="{{ url_for('inicio', _anchor='productos') }}">Quitar filtros</a></p>
+          {% else %}
+          <p>Pide por teléfono o por este sitio y lo tenemos listo para ti.</p>
+          {% endif %}
+        </div>
+
+        {% if productos %}
+        <ul class="catalogo">
+          {% for p in productos %}
+          <li class="fila-producto">
+            {% if p.imagen %}
+           <img class="producto-img" src="{{url_for('static', filename='css/img/' ~ p.imagen) }}" alt="{{p.nombre}}" loading="lazy">
+           {% else %}
+            <span class="pildora" aria-hidden="true"></span>
+            {% endif %}
+            <div class="producto-info">
+              <h3>{{ p.nombre }}</h3>
+              <p>{{ p.descripcion }}</p>
+            </div>
+            <div class="producto-meta">
+              <span class="etiqueta">{{ nombres_categoria[p.categoria] }}</span>
+              <span class="presentacion">{{ p.presentacion }}</span>
+            </div>
+            <a class="boton boton-borde boton-chico"
+               href="{{ url_for('inicio', pedido=p.nombre, _anchor='contacto') }}">Pedir</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="vacio">
+          <h3>No encontramos «{{ q }}»</h3>
+          <p>Prueba con otro nombre o escríbenos y lo conseguimos para ti.</p>
+          <a class="boton boton-solido" href="{{ url_for('inicio', pedido=q, _anchor='contacto') }}">Preguntar por este producto</a>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Servicios -->
+    <section class="seccion" id="servicios">
+      <div class="contenedor servicios-fila">
+        <div class="titulo-seccion servicios-titulo">
+          <h2>Más que una caja de medicamentos</h2>
+          <p>Estamos para resolver tus dudas y cuidar tu salud día a día.</p>
+        </div>
+
+        <div class="servicios-lista">
+          <article>
+            <h3>Asesoría farmacéutica</h3>
+            <p>Resolvemos tus dudas sobre dosis, combinaciones y efectos antes de que compres.</p>
+          </article>
+          <article>
+            <h3>Entrega a domicilio</h3>
+            <p>Llevamos tu pedido a casa en la ciudad, en menos de 45 minutos.</p>
+          </article>
+          <article>
+            <h3>Control de presión y glucosa</h3>
+            <p>Mediciones rápidas en mostrador, sin cita y sin costo.</p>
+          </article>
+          <article>
+            <h3>Vacunación</h3>
+            <p>Aplicación por personal capacitado. Pregunta por las vacunas disponibles.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Horarios -->
+    <section class="horarios" id="horarios">
+      <div class="contenedor horarios-fila">
+        <div>
+          <h2>Abrimos cuando nos necesitas</h2>
+          <p>Si tu urgencia es de madrugada, llámanos: atendemos por guardia nocturna.</p>
+        </div>
+        <dl class="tabla-horas">
+          <div><dt>Lunes a viernes</dt><dd>8:00 a 22:00</dd></div>
+          <div><dt>Sábados</dt><dd>9:00 a 21:00</dd></div>
+          <div><dt>Domingos y festivos</dt><dd>10:00 a 18:00</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- Contacto -->
+    <section class="seccion" id="contacto">
+      <div class="contenedor contacto-fila">
+        <div>
+          <div class="titulo-seccion">
+            <h2>Haz tu pedido o pregúntanos</h2>
+            <p>Déjanos tus datos y te llamamos para confirmar disponibilidad y entrega.</p>
+          </div>
+          <ul class="datos">
+            <li><strong>Dirección</strong> Av. Principal 123, Centro</li>
+            <li><strong>Teléfono</strong> (+52) 239 105 0216</li>
+            <li><strong>Correo</strong> farmaciasimilares@gmail.com</li>
+          </ul>
+        </div>
+
+        <form class="formulario" action="{{ url_for('contacto') }}" method="post">
+          {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% for tipo, texto in mensajes %}
+              <p class="aviso aviso-{{ tipo }}" role="status">{{ texto }}</p>
+            {% endfor %}
+          {% endwith %}
+
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" type="text" required autocomplete="name">
+
+          <label for="telefono">Teléfono</label>
+          <input id="telefono" name="telefono" type="tel" required autocomplete="tel">
+
+          <label for="mensaje">¿Qué necesitas?</label>
+          <textarea id="mensaje" name="mensaje" rows="4" required>{% if pedido %}Quiero pedir: {{ pedido }}{% endif %}</textarea>
+
+          <button class="boton boton-solido" type="submit">Enviar pedido</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor pie-fila">
+      <a class="marca marca-clara" href="{{ url_for('inicio') }}">
+        {{ logo() }}
+        <span>{{ nombre }}</span>
+      </a>
+      <p>Consulta siempre a tu médico o farmacéutico. No te automediques.</p>
+      <p>&copy; 2026 {{ nombre }}</p>
+    </div>
+  </footer>
+
+</body>
+</html>
